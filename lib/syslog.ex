@@ -88,11 +88,11 @@ defmodule Logger.Backends.Syslog do
 
   defp log_event(level, msg, ts, md, state) do
     %{format: format, metadata: keys, facility: facility, appid: appid,
-    hostname: _hostname, host: host, port: port, socket: socket} = state
+    hostname: hostname, host: host, port: port, socket: socket} = state
 
     level_num = Logger.Syslog.Utils.level(level)
-    pre = :io_lib.format('<~B>~s ~s~p: ', [facility ||| level_num,
-      Logger.Syslog.Utils.iso8601_timestamp(ts), appid, self()])
+    pre = :io_lib.format('<~B>~s ~s ~s~p: ', [facility ||| level_num,
+      Logger.Syslog.Utils.iso8601_timestamp(ts), hostname, appid, self()])
     packet = [pre, Logger.Formatter.format(format, level, msg, ts, take_metadata(md, keys))]
     if socket, do: :gen_udp.send(socket, host, port, packet)
   end
